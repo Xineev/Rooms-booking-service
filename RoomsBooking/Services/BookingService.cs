@@ -57,6 +57,22 @@ public class BookingService(ApplicationDbContext _context) : IBookingService
             : Result<BookingResponse>.Success(ToResponse(booking));
     }
 
+    public async Task<Result<List<BookingResponse>>> GetBookingsOfUserById(int id)
+    {
+        var userSearch = await EnsureUserExistsAsync(id);
+        
+        if(userSearch.IsFailure)
+            return Result<List<BookingResponse>>.Failure(userSearch.Error);
+
+        var bookings = await _context.Bookings
+            .AsNoTracking()
+            .Where(b => b.UserId == id)
+            .Select(b => ToResponse(b))
+            .ToListAsync();
+        
+        return Result<List<BookingResponse>>.Success(bookings);
+    }
+
     public async Task<Result<BookingResponse>> UpdateBookingAsync(int id, UpdateBookingRequest request)
     {
         var booking = await _context.Bookings
@@ -106,7 +122,7 @@ public class BookingService(ApplicationDbContext _context) : IBookingService
         return Result.Success();
     }
 
-    private BookingResponse ToResponse(Booking booking)
+    private static BookingResponse ToResponse(Booking booking)
     {
         return new BookingResponse()
         {
@@ -121,7 +137,7 @@ public class BookingService(ApplicationDbContext _context) : IBookingService
         };
     }
 
-    private Booking CreateNewBooking(CreateBookingRequest request)
+    private static Booking CreateNewBooking(CreateBookingRequest request)
     {
         return new Booking
         {
@@ -135,7 +151,7 @@ public class BookingService(ApplicationDbContext _context) : IBookingService
         };
     }
 
-    private Result ValidateNewBooking(CreateBookingRequest request)
+    private static Result ValidateNewBooking(CreateBookingRequest request)
     {
         if(request.StartTime >= request.EndTime)
             return Result.Failure(BookingErrors.InvalidEndTime);
