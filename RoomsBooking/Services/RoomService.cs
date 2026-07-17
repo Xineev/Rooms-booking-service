@@ -69,7 +69,7 @@ public class RoomService(ApplicationDbContext _context) : IRoomService
         return Result<RoomResponse>.Success(ToResponse(room));
     }
 
-    private RoomResponse ToResponse(Room room)
+    private static RoomResponse ToResponse(Room room)
     {
         return new RoomResponse
         {
