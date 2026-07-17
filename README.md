@@ -20,5 +20,4 @@ API для бронирования переговорных комнат.
 ## В разработке
 
 - JWT Authentication
-- Users API
 - Authorization
